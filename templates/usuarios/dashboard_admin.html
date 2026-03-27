@@ -3,15 +3,45 @@
 
 {% block content %}
 <h2 class="text-2xl font-bold text-gray-800">Painel Administrativo</h2>
-<p class="text-gray-500 mt-1">Visão geral do sistema</p>
+<p class="text-gray-500 mt-1 mb-6">Visão geral do sistema</p>
 
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-    {% for item in cards %}
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <a href="/admin/auth/user/" class="bg-white rounded-xl shadow p-5 text-center hover:shadow-md transition">
+        <div class="text-3xl font-bold text-gray-800">{{ total_usuarios }}</div>
+        <p class="text-gray-500 text-sm mt-1">Usuários</p>
+    </a>
+    <a href="{% url 'disciplina_list' %}" class="bg-white rounded-xl shadow p-5 text-center hover:shadow-md transition">
+        <div class="text-3xl font-bold text-gray-800">{{ total_disciplinas }}</div>
+        <p class="text-gray-500 text-sm mt-1">Disciplinas</p>
+    </a>
+    <a href="{% url 'aula_list' %}" class="bg-white rounded-xl shadow p-5 text-center hover:shadow-md transition">
+        <div class="text-3xl font-bold text-gray-800">{{ total_aulas }}</div>
+        <p class="text-gray-500 text-sm mt-1">Aulas</p>
+    </a>
     <div class="bg-white rounded-xl shadow p-5 text-center">
-        <div class="text-3xl mb-2">{{ item.icone }}</div>
-        <h5 class="font-semibold text-gray-700">{{ item.titulo }}</h5>
-        <p class="text-gray-400 text-sm mt-1">Em breve</p>
+        <div class="text-3xl font-bold text-gray-800">{{ total_presencas }}</div>
+        <p class="text-gray-500 text-sm mt-1">Presenças</p>
     </div>
-    {% endfor %}
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-semibold text-gray-700 mb-3">🔗 Acesso Rápido</h3>
+        <ul class="space-y-2 text-sm">
+            <li><a href="{% url 'aluno_list' %}" class="text-blue-600 hover:underline">→ Gerenciar Alunos</a></li>
+            <li><a href="{% url 'professor_list' %}" class="text-blue-600 hover:underline">→ Gerenciar Professores</a></li>
+            <li><a href="{% url 'disciplina_list' %}" class="text-blue-600 hover:underline">→ Gerenciar Disciplinas</a></li>
+            <li><a href="{% url 'sala_list' %}" class="text-blue-600 hover:underline">→ Gerenciar Salas</a></li>
+            <li><a href="{% url 'aula_list' %}" class="text-blue-600 hover:underline">→ Gerenciar Aulas</a></li>
+            <li><a href="/admin/" class="text-blue-600 hover:underline">→ Painel Admin Django</a></li>
+        </ul>
+    </div>
+    <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-semibold text-gray-700 mb-3">📋 Logs de Auditoria</h3>
+        <a href="/admin/usuarios/logauditoria/"
+           class="text-blue-600 hover:underline text-sm">
+            Ver logs no painel admin →
+        </a>
+    </div>
 </div>
 {% endblock %}

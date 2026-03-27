@@ -5,23 +5,91 @@
 <h2 class="text-2xl font-bold text-gray-800">
     Olá, Prof. {{ perfil.user.get_full_name|default:perfil.user.username }}!
 </h2>
-<p class="text-gray-500 mt-1">Painel do Professor</p>
+<p class="text-gray-500 mt-1 mb-6">Painel do Professor</p>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+{# Cards de resumo #}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
     <div class="bg-white rounded-xl shadow p-5 text-center">
-        <div class="text-3xl mb-2">📚</div>
-        <h5 class="font-semibold text-gray-700">Minhas Disciplinas</h5>
-        <p class="text-gray-400 text-sm mt-1">Em breve</p>
+        <div class="text-3xl font-bold text-gray-800">{{ total_disciplinas }}</div>
+        <p class="text-gray-500 text-sm mt-1">Disciplinas</p>
     </div>
     <div class="bg-white rounded-xl shadow p-5 text-center">
-        <div class="text-3xl mb-2">🗓️</div>
-        <h5 class="font-semibold text-gray-700">Aulas de Hoje</h5>
-        <p class="text-gray-400 text-sm mt-1">Em breve</p>
+        <div class="text-3xl font-bold text-gray-800">{{ total_aulas_hoje }}</div>
+        <p class="text-gray-500 text-sm mt-1">Aulas Hoje</p>
     </div>
     <div class="bg-white rounded-xl shadow p-5 text-center">
-        <div class="text-3xl mb-2">📊</div>
-        <h5 class="font-semibold text-gray-700">Relatórios</h5>
-        <p class="text-gray-400 text-sm mt-1">Em breve</p>
+        <div class="text-3xl font-bold text-gray-800">📋</div>
+        <p class="text-gray-500 text-sm mt-1">Relatórios</p>
     </div>
+</div>
+
+{# Aulas de hoje #}
+{% if aulas_hoje %}
+<div class="bg-white rounded-xl shadow overflow-hidden mb-6">
+    <div class="px-6 py-4 border-b">
+        <h3 class="font-semibold text-gray-700">📅 Aulas de Hoje</h3>
+    </div>
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+            <tr>
+                <th class="px-4 py-3 text-left">Disciplina</th>
+                <th class="px-4 py-3 text-left">Sala</th>
+                <th class="px-4 py-3 text-left">Horário</th>
+                <th class="px-4 py-3 text-left">Presenças</th>
+                <th class="px-4 py-3 text-left">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for aula in aulas_hoje %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3">{{ aula.disciplina.nome }}</td>
+                <td class="px-4 py-3">{{ aula.sala }}</td>
+                <td class="px-4 py-3">{{ aula.horario_inicio }} — {{ aula.horario_fim }}</td>
+                <td class="px-4 py-3">{{ aula.presencas.count }}</td>
+                <td class="px-4 py-3">
+                    <a href="{% url 'aula_detail' aula.pk %}"
+                       class="text-blue-600 hover:underline text-xs">Ver detalhes</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{# Minhas disciplinas #}
+<div class="bg-white rounded-xl shadow overflow-hidden">
+    <div class="px-6 py-4 border-b flex justify-between items-center">
+        <h3 class="font-semibold text-gray-700">📚 Minhas Disciplinas</h3>
+        <a href="{% url 'disciplina_list' %}" class="text-sm text-blue-600 hover:underline">
+            Ver todas
+        </a>
+    </div>
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+            <tr>
+                <th class="px-4 py-3 text-left">Código</th>
+                <th class="px-4 py-3 text-left">Nome</th>
+                <th class="px-4 py-3 text-left">Semestre</th>
+                <th class="px-4 py-3 text-left">Total de Aulas</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for disciplina in disciplinas %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3">{{ disciplina.codigo }}</td>
+                <td class="px-4 py-3">{{ disciplina.nome }}</td>
+                <td class="px-4 py-3">{{ disciplina.semestre }}</td>
+                <td class="px-4 py-3">{{ disciplina.aulas.count }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="px-4 py-6 text-center text-gray-400">
+                    Nenhuma disciplina cadastrada.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

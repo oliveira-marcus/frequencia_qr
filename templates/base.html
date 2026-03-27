@@ -8,17 +8,34 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-    <nav class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center">
-        <span class="font-bold text-lg">📋 Frequência QR</span>
-        {% if user.is_authenticated %}
-        <div class="flex items-center gap-4">
-            <span class="text-gray-300 text-sm">{{ user.get_full_name|default:user.username }}</span>
-            <a href="{% url 'account_logout' %}"
-               class="text-sm border border-gray-400 px-3 py-1 rounded hover:bg-gray-700 transition">
-                Sair
-            </a>
+    <nav class="bg-gray-900 text-white px-6 py-4">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <a href="{% url 'dashboard' %}" class="font-bold text-lg">📋 Frequência QR</a>
+
+            {% if user.is_authenticated %}
+            <div class="flex items-center gap-6 text-sm">
+                {% with tipo=user.perfil.tipo %}
+                {% if tipo == 'admin' or tipo == 'professor' %}
+                <a href="{% url 'aula_list' %}" class="text-gray-300 hover:text-white transition">Aulas</a>
+                <a href="{% url 'disciplina_list' %}" class="text-gray-300 hover:text-white transition">Disciplinas</a>
+                {% endif %}
+                {% if tipo == 'admin' %}
+                <a href="{% url 'aluno_list' %}" class="text-gray-300 hover:text-white transition">Alunos</a>
+                <a href="{% url 'professor_list' %}" class="text-gray-300 hover:text-white transition">Professores</a>
+                <a href="{% url 'sala_list' %}" class="text-gray-300 hover:text-white transition">Salas</a>
+                {% endif %}
+                {% endwith %}
+
+                <div class="flex items-center gap-3 ml-4 border-l border-gray-700 pl-4">
+                    <span class="text-gray-400">{{ user.get_full_name|default:user.username }}</span>
+                    <a href="{% url 'account_logout' %}"
+                       class="text-sm border border-gray-500 px-3 py-1 rounded hover:bg-gray-700 transition">
+                        Sair
+                    </a>
+                </div>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
     </nav>
 
     <div class="container mx-auto px-4 py-6 max-w-5xl">

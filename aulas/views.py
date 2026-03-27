@@ -15,12 +15,32 @@ def get_ip(request):
 
 @login_required
 def disciplina_list(request):
-    disciplinas = Disciplina.objects.select_related('professor__perfil__user').all()
+    perfil = request.user.perfil
+
+    if perfil.tipo == 'professor':
+        try:
+            disciplinas = Disciplina.objects.select_related(
+                'professor__perfil__user'
+            ).filter(professor=perfil.professor)
+        except Exception:
+            disciplinas = Disciplina.objects.none()
+    else:
+        disciplinas = Disciplina.objects.select_related(
+            'professor__perfil__user'
+        ).all()
+
     return render(request, 'aulas/disciplina_list.html', {'disciplinas': disciplinas})
 
 
 @login_required
 def disciplina_create(request):
+    perfil = request.user.perfil
+
+    # Apenas admin e professor podem criar disciplinas
+    if perfil.tipo == 'aluno':
+        messages.error(request, 'Você não tem permissão para criar disciplinas.')
+        return redirect('dashboard')
+
     if request.method == 'POST':
         form = DisciplinaForm(request.POST)
         if form.is_valid():
@@ -45,6 +65,20 @@ def disciplina_create(request):
 @login_required
 def disciplina_edit(request, pk):
     disciplina = get_object_or_404(Disciplina, pk=pk)
+    perfil = request.user.perfil
+
+    # Professor só pode editar suas próprias disciplinas
+    if perfil.tipo == 'professor':
+        try:
+            if disciplina.professor != perfil.professor:
+                messages.error(request, 'Você não tem permissão para editar essa disciplina.')
+                return redirect('disciplina_list')
+        except Exception:
+            return redirect('disciplina_list')
+    elif perfil.tipo == 'aluno':
+        messages.error(request, 'Você não tem permissão para editar disciplinas.')
+        return redirect('dashboard')
+
     if request.method == 'POST':
         form = DisciplinaForm(request.POST, instance=disciplina)
         if form.is_valid():
@@ -69,6 +103,19 @@ def disciplina_edit(request, pk):
 @login_required
 def disciplina_delete(request, pk):
     disciplina = get_object_or_404(Disciplina, pk=pk)
+    perfil = request.user.perfil
+
+    if perfil.tipo == 'professor':
+        try:
+            if disciplina.professor != perfil.professor:
+                messages.error(request, 'Você não tem permissão para excluir essa disciplina.')
+                return redirect('disciplina_list')
+        except Exception:
+            return redirect('disciplina_list')
+    elif perfil.tipo == 'aluno':
+        messages.error(request, 'Você não tem permissão para excluir disciplinas.')
+        return redirect('dashboard')
+
     if request.method == 'POST':
         nome = str(disciplina)
         disciplina.delete()
@@ -165,12 +212,32 @@ def sala_delete(request, pk):
 
 @login_required
 def aula_list(request):
-    aulas = Aula.objects.select_related('disciplina', 'sala').all()
+    perfil = request.user.perfil
+
+    # Professor vê apenas suas próprias aulas
+    if perfil.tipo == 'professor':
+        try:
+            professor = perfil.professor
+            aulas = Aula.objects.select_related('disciplina', 'sala').filter(
+                disciplina__professor=professor
+            )
+        except Exception:
+            aulas = Aula.objects.none()
+    else:
+        # Admin vê todas
+        aulas = Aula.objects.select_related('disciplina', 'sala').all()
+
     return render(request, 'aulas/aula_list.html', {'aulas': aulas})
 
 
 @login_required
 def aula_create(request):
+    perfil = request.user.perfil
+
+    if perfil.tipo == 'aluno':
+        messages.error(request, 'Você não tem permissão para criar aulas.')
+        return redirect('dashboard')
+
     if request.method == 'POST':
         form = AulaForm(request.POST)
         if form.is_valid():
@@ -192,9 +259,24 @@ def aula_create(request):
     })
 
 
+
 @login_required
 def aula_edit(request, pk):
     aula = get_object_or_404(Aula, pk=pk)
+    perfil = request.user.perfil
+
+    # Professor só pode editar aulas das suas disciplinas
+    if perfil.tipo == 'professor':
+        try:
+            if aula.disciplina.professor != perfil.professor:
+                messages.error(request, 'Você não tem permissão para editar essa aula.')
+                return redirect('aula_list')
+        except Exception:
+            return redirect('aula_list')
+    elif perfil.tipo == 'aluno':
+        messages.error(request, 'Você não tem permissão para editar aulas.')
+        return redirect('dashboard')
+
     if request.method == 'POST':
         form = AulaForm(request.POST, instance=aula)
         if form.is_valid():
@@ -219,6 +301,19 @@ def aula_edit(request, pk):
 @login_required
 def aula_delete(request, pk):
     aula = get_object_or_404(Aula, pk=pk)
+    perfil = request.user.perfil
+
+    if perfil.tipo == 'professor':
+        try:
+            if aula.disciplina.professor != perfil.professor:
+                messages.error(request, 'Você não tem permissão para excluir essa aula.')
+                return redirect('aula_list')
+        except Exception:
+            return redirect('aula_list')
+    elif perfil.tipo == 'aluno':
+        messages.error(request, 'Você não tem permissão para excluir aulas.')
+        return redirect('dashboard')
+
     if request.method == 'POST':
         nome = str(aula)
         aula.delete()

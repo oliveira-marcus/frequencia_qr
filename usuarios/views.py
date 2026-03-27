@@ -16,13 +16,58 @@ def index(request):
 @login_required
 def dashboard(request):
     perfil = request.user.perfil
-    context = {'perfil': perfil}
 
     if perfil.tipo == 'professor':
+        try:
+            professor = perfil.professor
+            disciplinas = professor.disciplinas.prefetch_related('aulas').all()
+            from django.utils import timezone
+            aulas_hoje = []
+            for d in disciplinas:
+                aulas_hoje += list(d.aulas.filter(data=timezone.localdate()))
+
+            context = {
+                'perfil': perfil,
+                'disciplinas': disciplinas,
+                'aulas_hoje': aulas_hoje,
+                'total_disciplinas': disciplinas.count(),
+                'total_aulas_hoje': len(aulas_hoje),
+            }
+        except Exception:
+            context = {'perfil': perfil}
         return render(request, 'usuarios/dashboard_professor.html', context)
+
     elif perfil.tipo == 'aluno':
+        try:
+            aluno = perfil.aluno
+            from presencas.models import Presenca
+            presencas = Presenca.objects.filter(
+                aluno=aluno, status='presente'
+            ).select_related('aula__disciplina').order_by('-horario_registro')[:5]
+
+            total_presencas = Presenca.objects.filter(aluno=aluno, status='presente').count()
+
+            context = {
+                'perfil': perfil,
+                'presencas_recentes': presencas,
+                'total_presencas': total_presencas,
+            }
+        except Exception:
+            context = {'perfil': perfil}
         return render(request, 'usuarios/dashboard_aluno.html', context)
+
     else:
+        from django.contrib.auth.models import User
+        from aulas.models import Aula, Disciplina
+        from presencas.models import Presenca
+
+        context = {
+            'perfil': perfil,
+            'total_usuarios': User.objects.count(),
+            'total_disciplinas': Disciplina.objects.count(),
+            'total_aulas': Aula.objects.count(),
+            'total_presencas': Presenca.objects.count(),
+        }
         return render(request, 'usuarios/dashboard_admin.html', context)
 
 
