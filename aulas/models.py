@@ -34,12 +34,21 @@ class Sala(models.Model):
 
 class Aula(models.Model):
     disciplina = models.ForeignKey(Disciplina, on_delete=models.CASCADE, related_name='aulas')
-    sala = models.ForeignKey(Sala, on_delete=models.SET_NULL, null=True, related_name='aulas')
+    sala = models.ForeignKey(Sala, on_delete=models.CASCADE, null=True, related_name='aulas')
     data = models.DateField()
     horario_inicio = models.TimeField()
     horario_fim = models.TimeField()
     token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     qr_code = models.ImageField(upload_to='qrcodes/', blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        # Verifica se a aula é nova (ainda não tem ID)
+        is_nova = self.pk is None
+        super().save(*args, **kwargs)
+        # Só gera o QR Code na criação, não em cada edição
+        if is_nova and not self.qr_code:
+            from .utils import gerar_qr_code
+            gerar_qr_code(self)
 
     def __str__(self):
         return f'{self.disciplina} — {self.data}'
