@@ -15,9 +15,50 @@
 
     <hr class="my-4">
 
-    <button id="btn-registrar"
-            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition">
-        Confirmar Presença
-    </button>
+    <form method="POST" id="form-presenca">
+        {% csrf_token %}
+        <input type="hidden" name="latitude" id="latitude">
+        <input type="hidden" name="longitude" id="longitude">
+        <input type="hidden" name="geo_erro" id="geo_erro">
+
+        <div id="status-geo" class="text-sm text-center text-gray-500 mb-3">
+            🔍 Obtendo sua localização...
+        </div>
+
+        <button type="submit" id="btn-registrar" disabled
+                class="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300
+                       text-white font-semibold py-2 rounded-lg transition">
+            Confirmar Presença
+        </button>
+    </form>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const btnRegistrar = document.getElementById('btn-registrar');
+    const statusGeo = document.getElementById('status-geo');
+
+    if (!navigator.geolocation) {
+        document.getElementById('geo_erro').value = 'nao_suportado';
+        statusGeo.textContent = '⚠️ Geolocalização não suportada pelo navegador.';
+        btnRegistrar.disabled = false;
+    } else {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                document.getElementById('latitude').value = pos.coords.latitude;
+                document.getElementById('longitude').value = pos.coords.longitude;
+                statusGeo.textContent = '✅ Localização obtida com sucesso.';
+                statusGeo.classList.replace('text-gray-500', 'text-green-600');
+                btnRegistrar.disabled = false;
+            },
+            (err) => {
+                document.getElementById('geo_erro').value = err.message;
+                statusGeo.textContent = '⚠️ Não foi possível obter localização: ' + err.message;
+                statusGeo.classList.replace('text-gray-500', 'text-red-500');
+                btnRegistrar.disabled = false;
+            }
+        );
+    }
+</script>
 {% endblock %}

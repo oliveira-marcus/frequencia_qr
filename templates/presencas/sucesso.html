@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Presença Registrada{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow p-6 max-w-md mx-auto mt-10 text-center">
+    <div class="text-6xl mb-4">✅</div>
+    <h4 class="text-xl font-bold text-gray-800 mb-2">Presença Registrada!</h4>
+    <hr class="my-4">
+    <div class="space-y-1 text-gray-600 text-sm">
+        <p><span class="font-semibold">Disciplina:</span> {{ aula.disciplina }}</p>
+        <p><span class="font-semibold">Data:</span> {{ aula.data }}</p>
+        <p><span class="font-semibold">Horário:</span> {{ aula.horario_inicio }} — {{ aula.horario_fim }}</p>
+    </div>
+    <a href="{% url 'dashboard' %}"
+       class="mt-6 inline-block bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
+        Ir para o Dashboard
+    </a>
+</div>
+{% endblock %}
