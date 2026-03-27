@@ -1,0 +1,9 @@
+asgiref==3.11.1
+Django==6.0.3
+django-allauth==65.15.0
+django-environ==0.13.0
+djangorestframework==3.17.1
+pillow==12.1.1
+psycopg2-binary==2.9.11
+qrcode==8.2
+sqlparse==0.5.5
