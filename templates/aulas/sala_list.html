@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Salas{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Salas</h2>
+    <a href="{% url 'sala_create' %}"
+       class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition text-sm">
+        + Nova Sala
+    </a>
+</div>
+
+<div class="bg-white rounded-xl shadow overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+            <tr>
+                <th class="px-4 py-3 text-left">Nome</th>
+                <th class="px-4 py-3 text-left">Prédio</th>
+                <th class="px-4 py-3 text-left">Raio (m)</th>
+                <th class="px-4 py-3 text-left">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for sala in salas %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3">{{ sala.nome }}</td>
+                <td class="px-4 py-3">{{ sala.predio }}</td>
+                <td class="px-4 py-3">{{ sala.raio_permitido }}</td>
+                <td class="px-4 py-3 flex gap-2">
+                    <a href="{% url 'sala_edit' sala.pk %}"
+                       class="text-blue-600 hover:underline">Editar</a>
+                    <a href="{% url 'sala_delete' sala.pk %}"
+                       class="text-red-500 hover:underline">Excluir</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="px-4 py-6 text-center text-gray-400">
+                    Nenhuma sala cadastrada.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

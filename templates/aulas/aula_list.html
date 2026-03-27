@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Aulas{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Aulas</h2>
+    <a href="{% url 'aula_create' %}"
+       class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition text-sm">
+        + Nova Aula
+    </a>
+</div>
+
+<div class="bg-white rounded-xl shadow overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+            <tr>
+                <th class="px-4 py-3 text-left">Disciplina</th>
+                <th class="px-4 py-3 text-left">Sala</th>
+                <th class="px-4 py-3 text-left">Data</th>
+                <th class="px-4 py-3 text-left">Horário</th>
+                <th class="px-4 py-3 text-left">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for aula in aulas %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3">{{ aula.disciplina }}</td>
+                <td class="px-4 py-3">{{ aula.sala }}</td>
+                <td class="px-4 py-3">{{ aula.data }}</td>
+                <td class="px-4 py-3">{{ aula.horario_inicio }} — {{ aula.horario_fim }}</td>
+                <td class="px-4 py-3 flex gap-2">
+                    <a href="{% url 'aula_detail' aula.pk %}"
+                       class="text-green-600 hover:underline">Ver</a>
+                    <a href="{% url 'aula_edit' aula.pk %}"
+                       class="text-blue-600 hover:underline">Editar</a>
+                    <a href="{% url 'aula_delete' aula.pk %}"
+                       class="text-red-500 hover:underline">Excluir</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="px-4 py-6 text-center text-gray-400">
+                    Nenhuma aula cadastrada.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
