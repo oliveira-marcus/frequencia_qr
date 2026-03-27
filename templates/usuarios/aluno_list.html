@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Alunos{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Alunos</h2>
+    <a href="{% url 'aluno_create' %}"
+       class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition text-sm">
+        + Novo Aluno
+    </a>
+</div>
+
+<div class="bg-white rounded-xl shadow overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+            <tr>
+                <th class="px-4 py-3 text-left">Nome</th>
+                <th class="px-4 py-3 text-left">Matrícula</th>
+                <th class="px-4 py-3 text-left">Curso</th>
+                <th class="px-4 py-3 text-left">Email</th>
+                <th class="px-4 py-3 text-left">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for aluno in alunos %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3">{{ aluno.perfil.user.get_full_name|default:aluno.perfil.user.username }}</td>
+                <td class="px-4 py-3">{{ aluno.matricula }}</td>
+                <td class="px-4 py-3">{{ aluno.curso }}</td>
+                <td class="px-4 py-3">{{ aluno.perfil.user.email }}</td>
+                <td class="px-4 py-3 flex gap-2">
+                    <a href="{% url 'aluno_edit' aluno.pk %}"
+                       class="text-blue-600 hover:underline">Editar</a>
+                    <a href="{% url 'aluno_delete' aluno.pk %}"
+                       class="text-red-500 hover:underline">Excluir</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="px-4 py-6 text-center text-gray-400">
+                    Nenhum aluno cadastrado.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

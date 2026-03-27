@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Confirmar Exclusão{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow p-6 max-w-md mx-auto mt-10 text-center">
+    <div class="text-5xl mb-4">⚠️</div>
+    <h4 class="text-xl font-bold text-gray-800 mb-2">Confirmar Exclusão</h4>
+    <p class="text-gray-600 mb-6">
+        Tem certeza que deseja excluir <span class="font-semibold">{{ objeto }}</span>?
+        Essa ação não pode ser desfeita.
+    </p>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="flex justify-center gap-3">
+            <button type="submit"
+                    class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg transition">
+                Sim, excluir
+            </button>
+            <a href="{% url cancelar_url %}"
+               class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-2 rounded-lg transition">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Professores{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Professores</h2>
+    <a href="{% url 'professor_create' %}"
+       class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition text-sm">
+        + Novo Professor
+    </a>
+</div>
+
+<div class="bg-white rounded-xl shadow overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+            <tr>
+                <th class="px-4 py-3 text-left">Nome</th>
+                <th class="px-4 py-3 text-left">Departamento</th>
+                <th class="px-4 py-3 text-left">Email</th>
+                <th class="px-4 py-3 text-left">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for professor in professores %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3">{{ professor.perfil.user.get_full_name|default:professor.perfil.user.username }}</td>
+                <td class="px-4 py-3">{{ professor.departamento }}</td>
+                <td class="px-4 py-3">{{ professor.perfil.user.email }}</td>
+                <td class="px-4 py-3 flex gap-2">
+                    <a href="{% url 'professor_edit' professor.pk %}"
+                       class="text-blue-600 hover:underline">Editar</a>
+                    <a href="{% url 'professor_delete' professor.pk %}"
+                       class="text-red-500 hover:underline">Excluir</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="px-4 py-6 text-center text-gray-400">
+                    Nenhum professor cadastrado.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
