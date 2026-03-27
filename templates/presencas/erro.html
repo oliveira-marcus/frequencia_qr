@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Erro{% endblock %}
+
+{% block content %}
+<div class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-xl max-w-lg mx-auto mt-10">
+    <h4 class="font-bold text-lg mb-1">❌ Erro</h4>
+    <p>{{ mensagem }}</p>
+</div>
+<div class="text-center mt-4">
+    <a href="{% url 'index' %}" class="text-gray-600 hover:underline">← Voltar</a>
+</div>
+{% endblock %}

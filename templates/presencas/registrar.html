@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Registrar Presença{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow p-6 max-w-md mx-auto mt-10">
+    <h4 class="text-xl font-bold text-center text-gray-800 mb-4">📍 Registrar Presença</h4>
+    <hr class="mb-4">
+
+    <div class="space-y-2 text-gray-700 text-sm">
+        <p><span class="font-semibold">Disciplina:</span> {{ aula.disciplina }}</p>
+        <p><span class="font-semibold">Data:</span> {{ aula.data }}</p>
+        <p><span class="font-semibold">Horário:</span> {{ aula.horario_inicio }} — {{ aula.horario_fim }}</p>
+        <p><span class="font-semibold">Sala:</span> {{ aula.sala }}</p>
+    </div>
+
+    <hr class="my-4">
+
+    <button id="btn-registrar"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition">
+        Confirmar Presença
+    </button>
+</div>
+{% endblock %}
