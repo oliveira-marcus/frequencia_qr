@@ -4,16 +4,13 @@ from .models import Perfil, Aluno, Professor
 
 
 class UserForm(forms.ModelForm):
-    """Formulário para criar/editar o User base."""
-    password = forms.CharField(
-        widget=forms.PasswordInput,
-        required=False,
-        help_text='Deixe em branco para manter a senha atual.'
-    )
-
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email', 'password']
+        fields = ['first_name', 'last_name', 'username', 'email']
+        help_texts = {
+            'username': 'Será preenchido automaticamente pelo Google no primeiro acesso.',
+            'email': 'Use o email institucional do usuário.',
+        }
 
 
 class AlunoForm(forms.ModelForm):

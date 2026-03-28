@@ -86,15 +86,15 @@ def aluno_create(request):
         aluno_form = AlunoForm(request.POST)
 
         if user_form.is_valid() and aluno_form.is_valid():
-            # Cria o User
             user = user_form.save(commit=False)
-            user.set_password(user_form.cleaned_data['password'])
+            user.set_unusable_password()
             user.save()
 
-            # Cria o Perfil
-            perfil = Perfil.objects.create(user=user, tipo='aluno')
+            # get_or_create evita conflito com o signal
+            perfil, _ = Perfil.objects.get_or_create(user=user, defaults={'tipo': 'aluno'})
+            perfil.tipo = 'aluno'
+            perfil.save()
 
-            # Cria o Aluno
             aluno = aluno_form.save(commit=False)
             aluno.perfil = perfil
             aluno.save()
@@ -128,11 +128,7 @@ def aluno_edit(request, pk):
         aluno_form = AlunoForm(request.POST, instance=aluno)
 
         if user_form.is_valid() and aluno_form.is_valid():
-            user = user_form.save(commit=False)
-            senha = user_form.cleaned_data.get('password')
-            if senha:
-                user.set_password(senha)
-            user.save()
+            user_form.save()
             aluno_form.save()
 
             LogAuditoria.objects.create(
@@ -190,10 +186,13 @@ def professor_create(request):
 
         if user_form.is_valid() and professor_form.is_valid():
             user = user_form.save(commit=False)
-            user.set_password(user_form.cleaned_data['password'])
+            user.set_unusable_password()
             user.save()
 
-            perfil = Perfil.objects.create(user=user, tipo='professor')
+            # get_or_create evita conflito com o signal
+            perfil, _ = Perfil.objects.get_or_create(user=user, defaults={'tipo': 'professor'})
+            perfil.tipo = 'professor'
+            perfil.save()
 
             professor = professor_form.save(commit=False)
             professor.perfil = perfil
@@ -228,11 +227,7 @@ def professor_edit(request, pk):
         professor_form = ProfessorForm(request.POST, instance=professor)
 
         if user_form.is_valid() and professor_form.is_valid():
-            user = user_form.save(commit=False)
-            senha = user_form.cleaned_data.get('password')
-            if senha:
-                user.set_password(senha)
-            user.save()
+            user_form.save()
             professor_form.save()
 
             LogAuditoria.objects.create(

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sair — Frequência QR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow p-8 w-full max-w-sm text-center">
+        <div class="text-5xl mb-4">👋</div>
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">Sair do sistema</h1>
+        <p class="text-gray-500 text-sm mb-6">
+            Tem certeza que deseja encerrar sua sessão?
+        </p>
+
+        <form method="POST" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            <div class="flex gap-3">
+                <button type="submit"
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-lg transition">
+                    Sim, sair
+                </button>
+                <a href="{% url 'dashboard' %}"
+                   class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 rounded-lg transition">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
