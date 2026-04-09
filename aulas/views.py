@@ -15,6 +15,7 @@ def get_ip(request):
 
 @login_required
 def disciplina_list(request):
+    busca = request.GET.get('q', '')
     perfil = request.user.perfil
 
     if perfil.tipo == 'professor':
@@ -29,7 +30,20 @@ def disciplina_list(request):
             'professor__perfil__user'
         ).all()
 
-    return render(request, 'aulas/disciplina_list.html', {'disciplinas': disciplinas})
+    if busca:
+        from django.db import models
+        disciplinas = disciplinas.filter(
+            models.Q(nome__icontains=busca) |
+            models.Q(codigo__icontains=busca) |
+            models.Q(semestre__icontains=busca) |
+            models.Q(professor__perfil__user__first_name__icontains=busca) |
+            models.Q(professor__perfil__user__last_name__icontains=busca)
+        )
+
+    return render(request, 'aulas/disciplina_list.html', {
+        'disciplinas': disciplinas,
+        'busca': busca,
+    })
 
 
 @login_required
@@ -212,9 +226,10 @@ def sala_delete(request, pk):
 
 @login_required
 def aula_list(request):
+    busca = request.GET.get('q', '')
+    data = request.GET.get('data', '')
     perfil = request.user.perfil
 
-    # Professor vê apenas suas próprias aulas
     if perfil.tipo == 'professor':
         try:
             professor = perfil.professor
@@ -224,10 +239,25 @@ def aula_list(request):
         except Exception:
             aulas = Aula.objects.none()
     else:
-        # Admin vê todas
         aulas = Aula.objects.select_related('disciplina', 'sala').all()
 
-    return render(request, 'aulas/aula_list.html', {'aulas': aulas})
+    if busca:
+        from django.db import models
+        aulas = aulas.filter(
+            models.Q(disciplina__nome__icontains=busca) |
+            models.Q(disciplina__codigo__icontains=busca) |
+            models.Q(sala__nome__icontains=busca) |
+            models.Q(sala__predio__icontains=busca)
+        )
+
+    if data:
+        aulas = aulas.filter(data=data)
+
+    return render(request, 'aulas/aula_list.html', {
+        'aulas': aulas,
+        'busca': busca,
+        'data': data,
+    })
 
 
 @login_required

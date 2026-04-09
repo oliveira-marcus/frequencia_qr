@@ -2,13 +2,35 @@
 {% block title %}Professores{% endblock %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-6">
+<div class="flex justify-between items-center mb-4">
     <h2 class="text-2xl font-bold text-gray-800">Professores</h2>
     <a href="{% url 'professor_create' %}"
        class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition text-sm">
         + Novo Professor
     </a>
 </div>
+
+<form method="GET" class="mb-4 flex gap-2">
+    <input type="text" name="q" value="{{ busca }}"
+           placeholder="Buscar por nome, departamento ou email..."
+           class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+    <button type="submit"
+            class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition text-sm">
+        Buscar
+    </button>
+    {% if busca %}
+    <a href="{% url 'professor_list' %}"
+       class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition text-sm">
+        Limpar
+    </a>
+    {% endif %}
+</form>
+
+{% if busca %}
+<p class="text-sm text-gray-500 mb-3">
+    {{ professores.count }} resultado(s) para "<strong>{{ busca }}</strong>"
+</p>
+{% endif %}
 
 <div class="bg-white rounded-xl shadow overflow-hidden">
     <table class="w-full text-sm">
@@ -36,7 +58,11 @@
             {% empty %}
             <tr>
                 <td colspan="4" class="px-4 py-6 text-center text-gray-400">
-                    Nenhum professor cadastrado.
+                    {% if busca %}
+                        Nenhum professor encontrado para "{{ busca }}".
+                    {% else %}
+                        Nenhum professor cadastrado.
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

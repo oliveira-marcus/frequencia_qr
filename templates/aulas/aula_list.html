@@ -2,13 +2,37 @@
 {% block title %}Aulas{% endblock %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-6">
+<div class="flex justify-between items-center mb-4">
     <h2 class="text-2xl font-bold text-gray-800">Aulas</h2>
     <a href="{% url 'aula_create' %}"
        class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition text-sm">
         + Nova Aula
     </a>
 </div>
+
+<form method="GET" class="mb-4 flex gap-2 flex-wrap">
+    <input type="text" name="q" value="{{ busca }}"
+           placeholder="Buscar por disciplina ou sala..."
+           class="flex-1 min-w-48 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+    <input type="date" name="data" value="{{ data }}"
+           class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+    <button type="submit"
+            class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition text-sm">
+        Buscar
+    </button>
+    {% if busca or data %}
+    <a href="{% url 'aula_list' %}"
+       class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition text-sm">
+        Limpar
+    </a>
+    {% endif %}
+</form>
+
+{% if busca or data %}
+<p class="text-sm text-gray-500 mb-3">
+    {{ aulas.count }} resultado(s) encontrado(s)
+</p>
+{% endif %}
 
 <div class="bg-white rounded-xl shadow overflow-hidden">
     <table class="w-full text-sm">
@@ -40,7 +64,11 @@
             {% empty %}
             <tr>
                 <td colspan="5" class="px-4 py-6 text-center text-gray-400">
-                    Nenhuma aula cadastrada.
+                    {% if busca or data %}
+                        Nenhuma aula encontrada com os filtros aplicados.
+                    {% else %}
+                        Nenhuma aula cadastrada.
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

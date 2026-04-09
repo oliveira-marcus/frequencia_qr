@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.db import models
 
 from .models import Perfil, Aluno, Professor, LogAuditoria
 from .forms import UserForm, AlunoForm, ProfessorForm
@@ -75,8 +76,23 @@ def dashboard(request):
 
 @login_required
 def aluno_list(request):
+    busca = request.GET.get('q', '')
     alunos = Aluno.objects.select_related('perfil__user').all()
-    return render(request, 'usuarios/aluno_list.html', {'alunos': alunos})
+
+    if busca:
+        alunos = alunos.filter(
+            models.Q(perfil__user__first_name__icontains=busca) |
+            models.Q(perfil__user__last_name__icontains=busca) |
+            models.Q(perfil__user__email__icontains=busca) |
+            models.Q(matricula__icontains=busca) |
+            models.Q(curso__icontains=busca)
+        )
+
+    return render(request, 'usuarios/aluno_list.html', {
+        'alunos': alunos,
+        'busca': busca,
+    })
+
 
 
 @login_required
@@ -174,8 +190,21 @@ def aluno_delete(request, pk):
 
 @login_required
 def professor_list(request):
+    busca = request.GET.get('q', '')
     professores = Professor.objects.select_related('perfil__user').all()
-    return render(request, 'usuarios/professor_list.html', {'professores': professores})
+
+    if busca:
+        professores = professores.filter(
+            models.Q(perfil__user__first_name__icontains=busca) |
+            models.Q(perfil__user__last_name__icontains=busca) |
+            models.Q(perfil__user__email__icontains=busca) |
+            models.Q(departamento__icontains=busca)
+        )
+
+    return render(request, 'usuarios/professor_list.html', {
+        'professores': professores,
+        'busca': busca,
+    })
 
 
 @login_required
