@@ -46,7 +46,7 @@ Certifique-se de ter instalado:
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/frequencia_qr.git
+git clone https://github.com/oliveira-marcus/frequencia_qr.git
 cd frequencia_qr
 ```
 
