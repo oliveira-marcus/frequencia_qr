@@ -80,9 +80,12 @@ ALTER ROLE frequencia_user SET client_encoding TO 'utf8';
 ALTER ROLE frequencia_user SET default_transaction_isolation TO 'read committed';
 ALTER ROLE frequencia_USER SET timezone TO 'America/Sao_Paulo';
 GRANT ALL PRIVILEGES ON DATABASE frequencia_db TO frequencia_user;
+
 \c frequencia_db
+
 GRANT ALL ON SCHEMA public TO frequencia_user;
 ALTER SCHEMA public OWNER TO frequencia_user;
+
 \q
 ```
 
