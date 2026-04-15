@@ -4,4 +4,7 @@ __pycache__/
 *.pyc
 *.pyo
 db.sqlite3
-media/
+media/*
+!media/.gitkeep
+static/*
+!static/.gitkeep
