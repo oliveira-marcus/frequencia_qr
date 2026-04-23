@@ -51,7 +51,8 @@
                 <td class="px-4 py-3">{{ disciplina.professor }}</td>
                 <td class="px-4 py-3">{{ disciplina.semestre }}</td>
                 <td class="px-4 py-3 flex gap-2">
-                       class="text-blue-600 hover:underline">Editar</a>
+                    <a href="{% url 'disciplina_edit' disciplina.pk %}"
+                       class="text-blue-600 hover:underline">Editar</class=>
                     <a href="{% url 'disciplina_delete' disciplina.pk %}"
                        class="text-red-500 hover:underline">Excluir</a>
                 </td>
