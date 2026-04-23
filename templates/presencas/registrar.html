@@ -39,25 +39,42 @@
     const btnRegistrar = document.getElementById('btn-registrar');
     const statusGeo = document.getElementById('status-geo');
 
-    if (!navigator.geolocation) {
-        document.getElementById('geo_erro').value = 'nao_suportado';
-        statusGeo.textContent = '⚠️ Geolocalização não suportada pelo navegador.';
+    const isSeguro = location.protocol === 'https:'
+        || location.hostname === 'localhost'
+        || location.hostname === '127.0.0.1';
+
+    function erroGeo(codigo, texto) {
+        document.getElementById('geo_erro').value = codigo;
+        statusGeo.textContent = '⚠️ ' + texto;
+        statusGeo.classList.replace('text-gray-500', 'text-red-500');
         btnRegistrar.disabled = false;
+    }
+
+    if (!isSeguro) {
+        erroGeo('sem_https',
+            'Esta página precisa ser acessada via HTTPS para obter sua localização. ' +
+            'Use o link seguro fornecido pela instituição.');
+    } else if (!navigator.geolocation) {
+        erroGeo('nao_suportado', 'Geolocalização não suportada pelo navegador.');
     } else {
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 document.getElementById('latitude').value = pos.coords.latitude;
                 document.getElementById('longitude').value = pos.coords.longitude;
-                statusGeo.textContent = '✅ Localização obtida com sucesso.';
+                const precisao = Math.round(pos.coords.accuracy);
+                statusGeo.textContent = `✅ Localização obtida com precisão de ±${precisao}m.`;
                 statusGeo.classList.replace('text-gray-500', 'text-green-600');
                 btnRegistrar.disabled = false;
             },
             (err) => {
-                document.getElementById('geo_erro').value = err.message;
-                statusGeo.textContent = '⚠️ Não foi possível obter localização: ' + err.message;
-                statusGeo.classList.replace('text-gray-500', 'text-red-500');
-                btnRegistrar.disabled = false;
-            }
+                const msgs = {
+                    1: 'Permissão de localização negada. Habilite nas configurações do navegador.',
+                    2: 'Não foi possível determinar sua posição. Verifique o GPS/Wi-Fi.',
+                    3: 'Tempo esgotado ao obter localização. Tente novamente.',
+                };
+                erroGeo('geo_' + err.code, msgs[err.code] || err.message);
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
     }
 </script>

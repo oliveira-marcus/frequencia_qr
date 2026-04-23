@@ -3,6 +3,22 @@ from usuarios.models import Aluno
 from aulas.models import Aula
 
 
+class RedePermitida(models.Model):
+    descricao = models.CharField(max_length=100)
+    cidr = models.CharField(
+        max_length=50,
+        help_text='Notação CIDR. Ex: 200.129.128.0/17 ou 177.20.147.50/32'
+    )
+    ativo = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f'{self.descricao} ({self.cidr})'
+
+    class Meta:
+        verbose_name = 'Rede Permitida'
+        verbose_name_plural = 'Redes Permitidas'
+
+
 class Presenca(models.Model):
     STATUS_CHOICES = [
         ('presente', 'Presente'),

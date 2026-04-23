@@ -14,6 +14,9 @@ class UserForm(forms.ModelForm):
 
 
 class AlunoForm(forms.ModelForm):
+    matricula = forms.CharField(max_length=20, required=True)
+    curso = forms.CharField(max_length=100, required=True)
+
     class Meta:
         model = Aluno
         fields = ['matricula', 'curso']

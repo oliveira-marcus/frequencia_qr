@@ -1,19 +1,10 @@
+import ipaddress
 from math import radians, sin, cos, sqrt, atan2
 
-
-# Range de IPs permitidos da universidade
-# Numa situação real, esses valores viriam do settings.py ou banco de dados
-IPS_INSTITUCIONAIS = [
-    '127.0.0.1',       # localhost (para testes)
-    '192.168.1.',      # exemplo de rede local
-    '10.0.0.',         # exemplo de rede institucional
-]
+from django.conf import settings
 
 
 def get_ip_cliente(request):
-    """
-    Obtém o IP real do cliente, considerando proxies.
-    """
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
         return x_forwarded_for.split(',')[0].strip()
@@ -21,13 +12,23 @@ def get_ip_cliente(request):
 
 
 def validar_rede(ip):
-    """
-    Verifica se o IP do aluno pertence à rede institucional.
-    Retorna True se válido, False caso contrário.
-    """
-    for ip_permitido in IPS_INSTITUCIONAIS:
-        if ip.startswith(ip_permitido) or ip == ip_permitido:
-            return True
+    # Em desenvolvimento, localhost sempre passa
+    if settings.DEBUG and ip in ('127.0.0.1', '::1'):
+        return True
+
+    try:
+        endereco = ipaddress.ip_address(ip)
+    except ValueError:
+        return False
+
+    from .models import RedePermitida
+    for rede in RedePermitida.objects.filter(ativo=True):
+        try:
+            if endereco in ipaddress.ip_network(rede.cidr, strict=False):
+                return True
+        except ValueError:
+            continue
+
     return False
 
 

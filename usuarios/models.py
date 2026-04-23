@@ -28,8 +28,8 @@ class Perfil(models.Model):
 
 class Aluno(models.Model):
     perfil = models.OneToOneField(Perfil, on_delete=models.CASCADE, related_name='aluno')
-    matricula = models.CharField(max_length=20, unique=True)
-    curso = models.CharField(max_length=100)
+    matricula = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    curso = models.CharField(max_length=100, blank=True, default='')
 
     def __str__(self):
         return f'{self.perfil.user.get_full_name()} - {self.matricula}'

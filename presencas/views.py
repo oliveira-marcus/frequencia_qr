@@ -76,14 +76,20 @@ def registrar_presenca(request):
 
         # 3. Valida geolocalização
         if geo_erro or not lat or not lon:
+            msgs_geo = {
+                'sem_https':  'O registro de presença requer conexão HTTPS. Use o link seguro da instituição.',
+                'nao_suportado': 'Seu navegador não suporta geolocalização.',
+                'geo_1': 'Permissão de localização negada. Habilite nas configurações do navegador.',
+                'geo_2': 'Não foi possível determinar sua posição. Verifique o GPS/Wi-Fi.',
+                'geo_3': 'Tempo esgotado ao obter localização. Tente novamente.',
+            }
+            mensagem = msgs_geo.get(geo_erro, 'Não foi possível obter sua localização.')
             Presenca.objects.create(
                 aluno=aluno, aula=aula,
                 ip_registrado=ip, status='fora_do_raio'
             )
-            _registrar_log(request, 'Presença negada (geolocalização não disponível)')
-            return render(request, 'presencas/erro.html', {
-                'mensagem': 'Não foi possível obter sua localização. Verifique as permissões do navegador.'
-            })
+            _registrar_log(request, f'Presença negada (geo indisponível): {geo_erro}')
+            return render(request, 'presencas/erro.html', {'mensagem': mensagem})
 
         geo_ok, distancia = validar_geolocalizacao(lat, lon, aula.sala)
         if not geo_ok:

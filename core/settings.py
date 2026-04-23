@@ -8,7 +8,20 @@ environ.Env.read_env(BASE_DIR / '.env')
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', default=False)
-ALLOWED_HOSTS = ['*']  # Em produção, restringir para o domínio real
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
+
+# Quando o Django fica atrás de um proxy reverso (nginx, Caddy, etc.) que
+# faz terminação SSL, o proxy repassa o protocolo original neste header.
+# Sem isso, allauth gera redirect URIs com http:// → Google rejeita.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+
+# Django 4+ exige que domínios externos estejam listados aqui para aceitar
+# requisições POST (incluindo o callback OAuth do Google).
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
+
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 # Apps instalados
 INSTALLED_APPS = [
