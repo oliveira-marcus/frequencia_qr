@@ -161,3 +161,8 @@ SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
 SOCIALACCOUNT_ADAPTER = 'usuarios.adapters.SocialAccountAdapter'
+
+# Nginx passes the real client IP in X-Real-IP; tell allauth to use it.
+# Without this, allauth falls back to REMOTE_ADDR which is empty on Unix sockets,
+# causing PermissionDenied when its rate limiter tries to determine the client IP.
+ALLAUTH_TRUSTED_CLIENT_IP_HEADER = "X-Real-IP"

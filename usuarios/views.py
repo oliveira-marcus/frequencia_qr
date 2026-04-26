@@ -41,6 +41,8 @@ def dashboard(request):
     elif perfil.tipo == 'aluno':
         try:
             aluno = perfil.aluno
+            if not aluno.matricula or not aluno.curso:
+                return redirect('completar_perfil')
             from presencas.models import Presenca
             presencas = Presenca.objects.filter(
                 aluno=aluno, status='presente'
@@ -54,7 +56,7 @@ def dashboard(request):
                 'total_presencas': total_presencas,
             }
         except Exception:
-            context = {'perfil': perfil}
+            return redirect('completar_perfil')
         return render(request, 'usuarios/dashboard_aluno.html', context)
 
     else:
@@ -296,3 +298,32 @@ def professor_delete(request, pk):
         'objeto': professor,
         'cancelar_url': 'professor_list',
     })
+
+
+# ─── Completar Perfil (Google OAuth) ─────────────────────────
+
+@login_required
+def completar_perfil(request):
+    try:
+        perfil = request.user.perfil
+    except Perfil.DoesNotExist:
+        return redirect('dashboard')
+
+    if perfil.tipo != 'aluno':
+        return redirect('dashboard')
+
+    aluno, _ = Aluno.objects.get_or_create(perfil=perfil)
+
+    if aluno.matricula and aluno.curso:
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = AlunoForm(request.POST, instance=aluno)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Perfil completado com sucesso! Bem-vindo(a)!')
+            return redirect('dashboard')
+    else:
+        form = AlunoForm(instance=aluno)
+
+    return render(request, 'usuarios/completar_perfil.html', {'form': form})
