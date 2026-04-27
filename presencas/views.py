@@ -17,7 +17,6 @@ def registrar_presenca(request):
     aula_id = request.GET.get('id')
     token = request.GET.get('token')
 
-    # Valida parâmetros do QR Code
     if not aula_id or not token:
         return render(request, 'presencas/erro.html', {
             'mensagem': 'QR Code inválido.'
@@ -25,13 +24,11 @@ def registrar_presenca(request):
 
     aula = get_object_or_404(Aula, id=aula_id, token=token)
 
-    # Se não estiver logado, salva a URL atual e redireciona para login
     if not request.user.is_authenticated:
         request.session['presenca_redirect'] = request.get_full_path()
         from django.shortcuts import redirect
         return redirect('account_login')
 
-    # Verifica se o usuário tem perfil de aluno
     try:
         aluno = request.user.perfil.aluno
     except Exception:
@@ -39,7 +36,6 @@ def registrar_presenca(request):
             'mensagem': 'Apenas alunos podem registrar presença.'
         })
 
-    # Verifica se já registrou presença nessa aula
     if Presenca.objects.filter(aluno=aluno, aula=aula).exists():
         return render(request, 'presencas/erro.html', {
             'mensagem': 'Você já registrou presença nessa aula.'
@@ -104,7 +100,7 @@ def registrar_presenca(request):
                 'mensagem': f'Você está a {distancia:.0f}m da sala. O limite é {aula.sala.raio_permitido}m.'
             })
 
-        # ✅ Tudo válido — registra presença
+        # Tudo válido — registra presença
         Presenca.objects.create(
             aluno=aluno, aula=aula,
             ip_registrado=ip,

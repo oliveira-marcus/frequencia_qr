@@ -10,14 +10,9 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', default=False)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
 
-# Quando o Django fica atrás de um proxy reverso (nginx, Caddy, etc.) que
-# faz terminação SSL, o proxy repassa o protocolo original neste header.
-# Sem isso, allauth gera redirect URIs com http:// → Google rejeita.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 
-# Django 4+ exige que domínios externos estejam listados aqui para aceitar
-# requisições POST (incluindo o callback OAuth do Google).
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
 
 SESSION_COOKIE_SECURE = not DEBUG
@@ -54,7 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',  # Exigido pelo allauth
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -62,7 +57,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Pasta global de templates
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -119,12 +114,11 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-SITE_ID = 1  # Exigido pelo allauth
+SITE_ID = 1
 
-# Coloque isso:
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 ACCOUNT_LOGIN_METHODS = {'username', 'email'}
-ACCOUNT_EMAIL_VERIFICATION = 'none'  # Em produção, mudar para 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
@@ -153,16 +147,11 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# Com login social não exigimos verificação de email
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 
-# Conecta automaticamente se o email já existir no banco
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
 SOCIALACCOUNT_ADAPTER = 'usuarios.adapters.SocialAccountAdapter'
 
-# Nginx passes the real client IP in X-Real-IP; tell allauth to use it.
-# Without this, allauth falls back to REMOTE_ADDR which is empty on Unix sockets,
-# causing PermissionDenied when its rate limiter tries to determine the client IP.
 ALLAUTH_TRUSTED_CLIENT_IP_HEADER = "X-Real-IP"

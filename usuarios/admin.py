@@ -36,7 +36,6 @@ class LogAuditoriaAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'acao']
     readonly_fields = ['user', 'acao', 'detalhes', 'ip', 'criado_em']
 
-    # Logs não devem ser editados nem criados manualmente
     def has_add_permission(self, request):
         return False
 

@@ -42,10 +42,8 @@ class Aula(models.Model):
     qr_code = models.ImageField(upload_to='qrcodes/', blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        # Verifica se a aula é nova (ainda não tem ID)
         is_nova = self.pk is None
         super().save(*args, **kwargs)
-        # Só gera o QR Code na criação, não em cada edição
         if is_nova and not self.qr_code:
             from .utils import gerar_qr_code
             gerar_qr_code(self)

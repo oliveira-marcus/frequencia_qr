@@ -50,7 +50,6 @@ def disciplina_list(request):
 def disciplina_create(request):
     perfil = request.user.perfil
 
-    # Apenas admin e professor podem criar disciplinas
     if perfil.tipo == 'aluno':
         messages.error(request, 'Você não tem permissão para criar disciplinas.')
         return redirect('dashboard')
@@ -81,7 +80,6 @@ def disciplina_edit(request, pk):
     disciplina = get_object_or_404(Disciplina, pk=pk)
     perfil = request.user.perfil
 
-    # Professor só pode editar suas próprias disciplinas
     if perfil.tipo == 'professor':
         try:
             if disciplina.professor != perfil.professor:
@@ -295,7 +293,6 @@ def aula_edit(request, pk):
     aula = get_object_or_404(Aula, pk=pk)
     perfil = request.user.perfil
 
-    # Professor só pode editar aulas das suas disciplinas
     if perfil.tipo == 'professor':
         try:
             if aula.disciplina.professor != perfil.professor:

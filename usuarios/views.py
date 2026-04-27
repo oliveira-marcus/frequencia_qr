@@ -108,7 +108,6 @@ def aluno_create(request):
             user.set_unusable_password()
             user.save()
 
-            # get_or_create evita conflito com o signal
             perfil, _ = Perfil.objects.get_or_create(user=user, defaults={'tipo': 'aluno'})
             perfil.tipo = 'aluno'
             perfil.save()
@@ -173,7 +172,7 @@ def aluno_delete(request, pk):
     aluno = get_object_or_404(Aluno, pk=pk)
     if request.method == 'POST':
         nome = str(aluno)
-        aluno.perfil.user.delete()  # Cascata: deleta perfil e aluno também
+        aluno.perfil.user.delete()
         LogAuditoria.objects.create(
             user=request.user,
             acao=f'Aluno removido: {nome}',
@@ -220,7 +219,6 @@ def professor_create(request):
             user.set_unusable_password()
             user.save()
 
-            # get_or_create evita conflito com o signal
             perfil, _ = Perfil.objects.get_or_create(user=user, defaults={'tipo': 'professor'})
             perfil.tipo = 'professor'
             perfil.save()

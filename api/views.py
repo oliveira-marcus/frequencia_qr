@@ -72,13 +72,11 @@ class PresencaListCreateAPI(generics.ListCreateAPIView):
     def get_queryset(self):
         perfil = self.request.user.perfil
 
-        # Aluno vê apenas suas próprias presenças
         if perfil.tipo == 'aluno':
             return Presenca.objects.filter(
                 aluno=perfil.aluno
             ).select_related('aluno', 'aula__disciplina')
 
-        # Professor vê presenças das suas disciplinas
         if perfil.tipo == 'professor':
             return Presenca.objects.filter(
                 aula__disciplina__professor=perfil.professor
