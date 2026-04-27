@@ -4,6 +4,13 @@ Sistema distribuído de controle de frequência em sala de aula utilizando QR Co
 
 Desenvolvido como trabalho da disciplina de **Sistemas Distribuídos** — UFVJM.
 
+**Grupo:**
+- Caio Bruno Gonzaga Liboreiro
+- Gabriel Macedo Santos
+- Kayky Nery Alcântara Vieira
+- Marcus Vinícius de Oliveira Pinto
+
+
 ---
 
 ## 📌 Sobre o projeto
