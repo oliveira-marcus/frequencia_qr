@@ -1,0 +1,13 @@
+# Tells Git to automatically handle line ending conversions for all files it detects as text
+* text=auto
+
+# Explicitly declare binary files to avoid corruption
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.sqlite3 binary
