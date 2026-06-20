@@ -6,6 +6,7 @@ cryptography==46.0.6
 Django==6.0.3
 django-allauth==65.15.0
 django-environ==0.13.0
+django-redis==7.0.0
 djangorestframework==3.17.1
 idna==3.11
 oauthlib==3.3.1

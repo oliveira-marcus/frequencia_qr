@@ -1,4 +1,5 @@
-from django.shortcuts import render, get_object_or_404
+from django.core.cache import cache
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
@@ -22,11 +23,15 @@ def registrar_presenca(request):
             'mensagem': 'QR Code inválido.'
         })
 
-    aula = get_object_or_404(Aula, id=aula_id, token=token)
+    cache_key_aula = f'aula:{aula_id}_{token}'
+    aula = cache.get(cache_key_aula)
+    if aula is None:
+        print("CACHE MISS")
+        aula = get_object_or_404(Aula, id=aula_id, token=token)
+        cache.set(cache_key_aula, aula, timeout=3600)
 
     if not request.user.is_authenticated:
         request.session['presenca_redirect'] = request.get_full_path()
-        from django.shortcuts import redirect
         return redirect('account_login')
 
     try:
@@ -36,10 +41,15 @@ def registrar_presenca(request):
             'mensagem': 'Apenas alunos podem registrar presença.'
         })
 
-    if Presenca.objects.filter(aluno=aluno, aula=aula).exists():
-        return render(request, 'presencas/erro.html', {
-            'mensagem': 'Você já registrou presença nessa aula.'
-        })
+    cache_key_presenca = f'presenca_exists:{aluno.id}_{aula.id}'
+    presenca_existe = cache.get(cache_key_presenca)
+    if presenca_existe is None:
+        presenca_existe = Presenca.objects.filter(aluno=aluno, aula=aula).exists()
+        if presenca_existe:
+            cache.set(cache_key_presenca, True, timeout=None)
+
+    if presenca_existe:
+        return redirect('dashboard')
 
     ip = get_ip_cliente(request)
 
@@ -52,7 +62,7 @@ def registrar_presenca(request):
         # 1. Valida horário
         horario_ok, msg_horario = validar_horario(aula)
         if not horario_ok:
-            presenca = Presenca.objects.create(
+            Presenca.objects.create(
                 aluno=aluno, aula=aula,
                 ip_registrado=ip, status='negado'
             )
@@ -107,6 +117,7 @@ def registrar_presenca(request):
             latitude=lat, longitude=lon,
             status='presente'
         )
+        cache.set(cache_key_presenca, True, timeout=None)
         _registrar_log(request, f'Presença registrada: aula {aula.id}')
 
         return render(request, 'presencas/sucesso.html', {'aula': aula})

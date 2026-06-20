@@ -107,6 +107,23 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ==============================================================
+# Cache (Redis)
+# ==============================================================
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_CACHE_ALIAS = 'default'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient'
+        },
+        'KEY_PREFIX': 'django_orm'
+    }
+}
+
+# ==============================================================
 # Configurações do django-allauth
 # ==============================================================
 AUTHENTICATION_BACKENDS = [
@@ -154,4 +171,5 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 
 SOCIALACCOUNT_ADAPTER = 'usuarios.adapters.SocialAccountAdapter'
 
-ALLAUTH_TRUSTED_CLIENT_IP_HEADER = "X-Real-IP"
+if not DEBUG:
+    ALLAUTH_TRUSTED_CLIENT_IP_HEADER = "X-Real-IP"
