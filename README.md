@@ -44,6 +44,7 @@ Certifique-se de ter instalado:
 
 - Python 3.12+
 - PostgreSQL 15+
+- Docker (para o Redis)
 - Git
 
 ---
@@ -70,7 +71,17 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Configure o banco de dados
+### 4. Suba o Redis com Docker
+
+O projeto utiliza Redis para cache de sessões e de objetos. Suba um container local com:
+
+```bash
+docker run -d --name redis -p 6379:6379 -p 8001:8001 redis:latest
+```
+
+> A porta `6379` é usada pela aplicação. A porta `8001` expõe o Redis Insight, interface web para inspecionar o cache (disponível em **http://localhost:8001**).
+
+### 5. Configure o banco de dados
 
 Acesse o PostgreSQL como superusuário:
 
@@ -99,7 +110,7 @@ ALTER SCHEMA public OWNER TO frequencia_user;
 \q
 ```
 
-### 5. Configure as variáveis de ambiente
+### 6. Configure as variáveis de ambiente
 
 Crie o arquivo `.env` na raiz do projeto:
 
@@ -121,19 +132,19 @@ DB_PORT=5432
 
 > ⚠️ Nunca compartilhe o arquivo `.env` nem o envie para o repositório.
 
-### 6. Aplique as migrações
+### 7. Aplique as migrações
 
 ```bash
 python manage.py migrate
 ```
 
-### 7. Crie o superusuário
+### 8. Crie o superusuário
 
 ```bash
 python manage.py createsuperuser
 ```
 
-### 8. Suba o servidor
+### 9. Suba o servidor
 
 ```bash
 python manage.py runserver
