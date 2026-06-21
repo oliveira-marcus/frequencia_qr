@@ -1,17 +1,14 @@
+from celery.result import AsyncResult
+
 from django.core.cache import cache
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 
 from aulas.models import Aula
-from usuarios.models import LogAuditoria
+
 from .models import Presenca
-from .validacoes import (
-    get_ip_cliente,
-    validar_rede,
-    validar_geolocalizacao,
-    validar_horario,
-)
+from .tasks import processar_presenca
+from .validacoes import get_ip_cliente
 
 
 def registrar_presenca(request):
@@ -59,68 +56,17 @@ def registrar_presenca(request):
         lon = request.POST.get('longitude')
         geo_erro = request.POST.get('geo_erro')
 
-        # 1. Valida horário
-        horario_ok, msg_horario = validar_horario(aula)
-        if not horario_ok:
-            Presenca.objects.create(
-                aluno=aluno, aula=aula,
-                ip_registrado=ip, status='negado'
-            )
-            _registrar_log(request, f'Presença negada (horário): {msg_horario}')
-            return render(request, 'presencas/erro.html', {'mensagem': msg_horario})
-
-        # 2. Valida rede institucional
-        if not validar_rede(ip):
-            Presenca.objects.create(
-                aluno=aluno, aula=aula,
-                ip_registrado=ip, status='rede_invalida'
-            )
-            _registrar_log(request, f'Presença negada (rede inválida): IP {ip}')
-            return render(request, 'presencas/erro.html', {
-                'mensagem': f'Você não está conectado à rede da universidade. (IP: {ip})'
-            })
-
-        # 3. Valida geolocalização
-        if geo_erro or not lat or not lon:
-            msgs_geo = {
-                'sem_https':  'O registro de presença requer conexão HTTPS. Use o link seguro da instituição.',
-                'nao_suportado': 'Seu navegador não suporta geolocalização.',
-                'geo_1': 'Permissão de localização negada. Habilite nas configurações do navegador.',
-                'geo_2': 'Não foi possível determinar sua posição. Verifique o GPS/Wi-Fi.',
-                'geo_3': 'Tempo esgotado ao obter localização. Tente novamente.',
-            }
-            mensagem = msgs_geo.get(geo_erro, 'Não foi possível obter sua localização.')
-            Presenca.objects.create(
-                aluno=aluno, aula=aula,
-                ip_registrado=ip, status='fora_do_raio'
-            )
-            _registrar_log(request, f'Presença negada (geo indisponível): {geo_erro}')
-            return render(request, 'presencas/erro.html', {'mensagem': mensagem})
-
-        geo_ok, distancia = validar_geolocalizacao(lat, lon, aula.sala)
-        if not geo_ok:
-            Presenca.objects.create(
-                aluno=aluno, aula=aula,
-                ip_registrado=ip,
-                latitude=lat, longitude=lon,
-                status='fora_do_raio'
-            )
-            _registrar_log(request, f'Presença negada (fora do raio): {distancia:.0f}m da sala')
-            return render(request, 'presencas/erro.html', {
-                'mensagem': f'Você está a {distancia:.0f}m da sala. O limite é {aula.sala.raio_permitido}m.'
-            })
-
-        # Tudo válido — registra presença
-        Presenca.objects.create(
-            aluno=aluno, aula=aula,
-            ip_registrado=ip,
-            latitude=lat, longitude=lon,
-            status='presente'
+        task = processar_presenca.delay(
+            aluno_id=aluno.id,
+            aula_id=aula.id,
+            ip=ip,
+            lat=lat,
+            lon=lon,
+            geo_erro=geo_erro,
+            user_id=request.user.id,
         )
-        cache.set(cache_key_presenca, True, timeout=None)
-        _registrar_log(request, f'Presença registrada: aula {aula.id}')
 
-        return render(request, 'presencas/sucesso.html', {'aula': aula})
+        return render(request, 'presencas/aguardando.html', {'task_id': task.id})
 
     # GET — exibe a página de confirmação
     return render(request, 'presencas/registrar.html', {
@@ -129,11 +75,8 @@ def registrar_presenca(request):
     })
 
 
-def _registrar_log(request, acao):
-    """Função auxiliar para gravar log de auditoria."""
-    from .validacoes import get_ip_cliente
-    LogAuditoria.objects.create(
-        user=request.user,
-        acao=acao,
-        ip=get_ip_cliente(request)
-    )
+def status_presenca(request, task_id):
+    result = AsyncResult(task_id)
+    if not result.ready():
+        return JsonResponse({'ready': False})
+    return JsonResponse({'ready': True, **result.get()})

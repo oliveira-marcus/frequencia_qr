@@ -81,7 +81,17 @@ docker run -d --name redis -p 6379:6379 -p 8001:8001 redis:latest
 
 > A porta `6379` é usada pela aplicação. A porta `8001` expõe o Redis Insight, interface web para inspecionar o cache (disponível em **http://localhost:8001**).
 
-### 5. Configure o banco de dados
+### 5. Suba o RabbitMQ com Docker
+
+O projeto utiliza RabbitMQ como broker de mensagens para o Celery. Suba um container local com:
+
+```bash
+docker run -d --name rabbitmq -p 5672:5672 rabbitmq:3
+```
+
+> Use a tag `rabbitmq:3` — versões 4.x removeram suporte a filas transientes não-exclusivas utilizadas pelo Celery.
+
+### 6. Configure o banco de dados
 
 Acesse o PostgreSQL como superusuário:
 
@@ -110,7 +120,7 @@ ALTER SCHEMA public OWNER TO frequencia_user;
 \q
 ```
 
-### 6. Configure as variáveis de ambiente
+### 7. Configure as variáveis de ambiente
 
 Crie o arquivo `.env` na raiz do projeto:
 
@@ -132,19 +142,19 @@ DB_PORT=5432
 
 > ⚠️ Nunca compartilhe o arquivo `.env` nem o envie para o repositório.
 
-### 7. Aplique as migrações
+### 8. Aplique as migrações
 
 ```bash
 python manage.py migrate
 ```
 
-### 8. Crie o superusuário
+### 9. Crie o superusuário
 
 ```bash
 python manage.py createsuperuser
 ```
 
-### 9. Suba o servidor
+### 10. Suba o servidor
 
 ```bash
 python manage.py runserver
