@@ -32,13 +32,13 @@ def processar_presenca(aluno_id, aula_id, ip, lat, lon, geo_erro, user_id):
     horario_ok, msg_horario = validar_horario(aula)
     if not horario_ok:
         Presenca.objects.create(aluno=aluno, aula=aula, ip_registrado=ip, status='negado')
-        cache.set(cache_key_presenca, True, timeout=None)
+        cache.set(cache_key_presenca, True, timeout=900)
         registrar_log(f'Presença negada (horário): {msg_horario}')
         return {'sucesso': False, 'mensagem': msg_horario}
 
     if not validar_rede(ip):
         Presenca.objects.create(aluno=aluno, aula=aula, ip_registrado=ip, status='rede_invalida')
-        cache.set(cache_key_presenca, True, timeout=None)
+        cache.set(cache_key_presenca, True, timeout=900)
         registrar_log(f'Presença negada (rede inválida): IP {ip}')
         return {'sucesso': False, 'mensagem': f'Você não está conectado à rede da universidade. (IP: {ip})'}
 
@@ -52,7 +52,7 @@ def processar_presenca(aluno_id, aula_id, ip, lat, lon, geo_erro, user_id):
         }
         mensagem = msgs_geo.get(geo_erro, 'Não foi possível obter sua localização.')
         Presenca.objects.create(aluno=aluno, aula=aula, ip_registrado=ip, status='fora_do_raio')
-        cache.set(cache_key_presenca, True, timeout=None)
+        cache.set(cache_key_presenca, True, timeout=900)
         registrar_log(f'Presença negada (geo indisponível): {geo_erro}')
         return {'sucesso': False, 'mensagem': mensagem}
 
@@ -62,7 +62,7 @@ def processar_presenca(aluno_id, aula_id, ip, lat, lon, geo_erro, user_id):
             aluno=aluno, aula=aula, ip_registrado=ip,
             latitude=lat, longitude=lon, status='fora_do_raio'
         )
-        cache.set(cache_key_presenca, True, timeout=None)
+        cache.set(cache_key_presenca, True, timeout=900)
         registrar_log(f'Presença negada (fora do raio): {distancia:.0f}m da sala')
         return {'sucesso': False, 'mensagem': f'Você está a {distancia:.0f}m da sala. O limite é {aula.sala.raio_permitido}m.'}
 
@@ -70,7 +70,7 @@ def processar_presenca(aluno_id, aula_id, ip, lat, lon, geo_erro, user_id):
         aluno=aluno, aula=aula, ip_registrado=ip,
         latitude=lat, longitude=lon, status='presente'
     )
-    cache.set(cache_key_presenca, True, timeout=None)
+    cache.set(cache_key_presenca, True, timeout=900)
     registrar_log(f'Presença registrada: aula {aula.id}')
     return {
         'sucesso': True,

@@ -43,7 +43,7 @@ def registrar_presenca(request):
     if presenca_existe is None:
         presenca_existe = Presenca.objects.filter(aluno=aluno, aula=aula).exists()
         if presenca_existe:
-            cache.set(cache_key_presenca, True, timeout=None)
+            cache.set(cache_key_presenca, True, timeout=900)
 
     if presenca_existe:
         return redirect('dashboard')
