@@ -154,7 +154,17 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### 10. Suba o servidor
+### 10. Suba o worker do Celery
+
+Em um terminal separado, inicie o worker para processar as tarefas assíncronas:
+
+```bash
+celery -A core worker --loglevel=info --pool=solo --without-mingle --without-gossip
+```
+
+> `--pool=solo` é necessário no Windows. `--without-mingle` e `--without-gossip` evitam incompatibilidades com RabbitMQ 3.x.
+
+### 11. Suba o servidor
 
 ```bash
 python manage.py runserver
